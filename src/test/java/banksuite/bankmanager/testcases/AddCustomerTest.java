@@ -11,7 +11,7 @@ import java.util.Hashtable;
 
 public class AddCustomerTest {
 
-    @Test(dataProviderClass= DataProviders.class,dataProvider="customerDP")
+    @Test(dataProviderClass = DataProviders.class,dataProvider="customerDP")
     public void addCustomerTest(Hashtable<String, String> data) {
     }
 }
