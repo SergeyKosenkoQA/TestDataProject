@@ -1,39 +1,74 @@
 package utils;
 
+import org.testng.SkipException;
 import org.testng.annotations.DataProvider;
 
 import java.util.Hashtable;
 
 public class DataUtils {
 
-    public static boolean isSuiteRunnable(String suiteName, ExcelReader excel) {
+    public static void checkExecution(String testSuiteName, String testCaseName, String dataRunMode,
+                                      ExcelReader excel) {
+
+        if (!isSuiteRunnable(testSuiteName)) {
+
+            throw new SkipException("Skipping the test : " + testCaseName + " as the Runmode of Test Suite : "
+                    + testSuiteName + " is NO");
+
+        }
+
+
+        if (!isTestRunnable(testCaseName,excel)) {
+
+            throw new SkipException("Skipping the test : " + testCaseName + " as the Runmode of Test Case : "
+                    + testCaseName + " is NO");
+
+        }
+
+
+        if(dataRunMode.equalsIgnoreCase(Constants.RUNMODE_NO)){
+
+
+            throw new SkipException("Skipping the test : "+testCaseName+" as the Run mode to Data set is NO");
+        }
+
+    }
+
+    public static boolean isSuiteRunnable(String suiteName) {
+        ExcelReader excel = new ExcelReader(Constants.SUITE_XL_PATH);
        int rows = excel.getRowCount(Constants.SUITE_SHEET);
        for(int rowNum=2; rowNum<=rows; rowNum++) {
           String data = excel.getCellData(Constants.SUITE_SHEET,Constants.SUITENAME_COL,rowNum);
           if(data.equalsIgnoreCase(suiteName)) {
               String runMode = excel.getCellData(Constants.SUITE_SHEET,Constants.RUNMODE_COL,rowNum);
-              return runMode.equalsIgnoreCase(Constants.RUNMODE_YES);
+              return runMode.equals(Constants.RUNMODE_YES);
           }
        }
         return false;
     }
     public static boolean isTestRunnable(String testCaseName, ExcelReader excel) {
-        int rows = excel.getRowCount(Constants.TESTCASE_SHEET);
-        for(int rowNum=2; rowNum<=rows; rowNum++) {
-            String data = excel.getCellData(Constants.TESTCASE_SHEET,Constants.TESTCASE_COL,rowNum);
-            if(data.equalsIgnoreCase(testCaseName)) {
-                String runMode = excel.getCellData(Constants.TESTCASE_SHEET,Constants.RUNMODE_COL,rowNum);
-                return runMode.equalsIgnoreCase(Constants.RUNMODE_YES);
-            }
-        }
-        return false;
 
+        int rows = excel.getRowCount(Constants.TESTCASE_SHEET);
+
+        for (int rowNum = 2; rowNum <= rows; rowNum++) {
+
+            String data = excel.getCellData(Constants.TESTCASE_SHEET, Constants.TESTCASE_COL, rowNum);
+
+            if (data.equals(testCaseName)) {
+
+                String runmode = excel.getCellData(Constants.TESTCASE_SHEET, Constants.RUNMODE_COL, rowNum);
+                return runmode.equals(Constants.RUNMODE_YES);
+
+            }
+
+        }
+
+        return false;
     }
 
     // Common data provider for tests
     @DataProvider
     public static Object[][] getData(String testCase, ExcelReader excel) {
-
         int rows = excel.getRowCount(Constants.DATA_SHEET);
         System.out.println("Total rows are: " + rows);
 
